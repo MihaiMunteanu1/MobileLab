@@ -31,7 +31,7 @@ app.use(jwt(jwtConfig));
 
 // protected
 const protectedApiRouter = new Router({ prefix });
-protectedApiRouter.use("/game", itemRouter.routes());
+protectedApiRouter.use("/item", itemRouter.routes());
 app.use(protectedApiRouter.routes()).use(protectedApiRouter.allowedMethods());
 
 server.listen(3000);
