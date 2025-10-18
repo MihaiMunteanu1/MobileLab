@@ -23,7 +23,7 @@ interface ItemEditProps extends RouteComponentProps<{
 }> {}
 
 const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
-  const { items, saving, deleting, savingError, deletingError, saveItem, deleteItem2 } = useContext(ItemContext);
+  const { items, saving,  savingError,  saveItem  } = useContext(ItemContext);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -31,7 +31,7 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
   useEffect(() => {
     log('useEffect');
     const routeId = match.params.id || '';
-    const item = items?.find(it => it.id === routeId);
+    const item = items?.find(it => it._id === routeId);
     setItem(item);
     if (item) {
         console.log(item);
@@ -45,12 +45,6 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
     saveItem && saveItem(editedItem).then(() => history.goBack());
   }, [item, saveItem, name,description, history]);
 
-  const handleDelete = useCallback(() => {
-    const editedItem = item;
-    console.log(deleteItem2);
-    console.log(editedItem);
-    deleteItem2 && deleteItem2(editedItem).then(() => history.goBack());
-  }, [item, deleteItem2, history]);
 
   log('render');
   console.log(item);
@@ -61,7 +55,6 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
           <IonTitle>Edit</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={handleSave}> Save </IonButton>
-            <IonButton onClick={handleDelete}> Delete </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
@@ -78,10 +71,7 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
         {savingError && (
           <div>{savingError.message || 'Failed to save item'}</div>
         )}
-         <IonLoading isOpen={deleting} />
-        {deletingError && (
-          <div>{deletingError.message || 'Failed to delete item'}</div>
-        )}
+
       </IonContent>
     </IonPage>
   );
