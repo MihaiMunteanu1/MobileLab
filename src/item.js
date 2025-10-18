@@ -22,7 +22,6 @@ export class ItemStore {
 
         /*if (!company.description) throw new Error("Missing description!");*/
 
-        companyv.isNotSaved = false;
         return this.store.insert(company);
     }
 
@@ -75,7 +74,7 @@ const createItem = async (ctx, company, response) => {
         response.status = 201; // created
         broadcast(userId, {
             event: "created",
-            payload: { updatedGame: response.body },
+            payload: { updatedCompany: response.body },
         });
     } catch (err) {
         console.log("here");
