@@ -12,7 +12,7 @@ interface LoginState {
 }
 
 export const Login: React.FC<RouteComponentProps> = ({ history }) => {
-  const { isAuthenticated, isAuthenticating, login, authenticationError } = useContext(AuthContext);
+  const { isAuthenticated, isAuthenticating, login, authenticationError, initialized } = useContext(AuthContext);
   const [state, setState] = useState<LoginState>({});
   const { username, password } = state;
   const handlePasswwordChange = useCallback((e: any) => setState({
@@ -29,11 +29,12 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
   }, [username, password]);
   log('render');
   useEffect(() => {
+    if (!initialized) return;
     if (isAuthenticated) {
       log('redirecting to home');
       history.push('/');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, initialized]);
   return (
     <IonPage>
       <IonHeader>

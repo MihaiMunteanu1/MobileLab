@@ -48,6 +48,5 @@ authRouter.post('/login', async (ctx) => {
     } else {
         ctx.response.body = { error: 'Invalid credentials' };
         ctx.response.status = 400; // bad request
-        console.log("Invalid credentials");
     }
 });

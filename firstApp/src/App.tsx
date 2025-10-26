@@ -31,11 +31,11 @@ import '@ionic/react/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
-import { ItemList } from './todo';
 import { ItemProvider } from './todo/ItemProvider';
 import ItemEdit from './todo/ItemEdit';
 import { AuthProvider, Login, PrivateRoute } from './auth';
-import ItemList2 from "./todo/ItemList2";
+import ItemList from "./todo/ItemList";
+import ItemAdd from "./todo/ItemAdd";
 
 setupIonicReact();
 
@@ -46,8 +46,8 @@ const App: React.FC = () => (
                 <AuthProvider>
                     <Route path="/login" component={Login} exact={true}/>
                     <ItemProvider>
-                        <PrivateRoute path="/items" component={ItemList2} exact={true}/>
-                        <PrivateRoute path="/item" component={ItemEdit} exact={true}/>
+                        <PrivateRoute path="/items" component={ItemList} exact={true}/>
+                        <PrivateRoute path="/item" component={ItemAdd} exact={true}/>
                         <PrivateRoute path="/item/:id" component={ItemEdit} exact={true}/>
                     </ItemProvider>
                     <Route exact path="/" render={() => <Redirect to="/items"/>}/>
