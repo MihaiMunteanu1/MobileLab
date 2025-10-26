@@ -51,6 +51,8 @@ const CREATE_ITEM_SUCCEEDED = 'CREATE_ITEM_SUCCEEDED';
 const CREATE_ITEM_FAILED = 'CREATE_ITEM_FAILED';
 
 
+const REPLACE_TEMP_ITEM = 'REPLACE_TEMP_ITEM';
+
 
 const reducer: (state: ItemsState, action: ActionProps) => ItemsState = (state, { type, payload }) => {
     switch (type) {
@@ -84,6 +86,20 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState = (state, 
             const index = items.findIndex((it) => it._id === item._id);
             if (index === -1) items.splice(0, 0, item);
             else items[index] = item;
+            return { ...state, items, saving: false, savingError: null };
+        }
+
+        case REPLACE_TEMP_ITEM: {
+            const { tempId, item } = payload as { tempId: string; item: ItemProps };
+            const items = [...(state.items || [])];
+            const tmpIdx = items.findIndex((it) => it._id === tempId);
+            if (tmpIdx >= 0) {
+                items[tmpIdx] = item; // replace temp with server item
+            } else {
+                const idx = items.findIndex((it) => it._id === item._id);
+                if (idx === -1) items.splice(0, 0, item);
+                else items[idx] = item;
+            }
             return { ...state, items, saving: false, savingError: null };
         }
 
@@ -183,7 +199,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
             }
         }
     }
-
     function executePendingOperations() {
         async function run() {
             if (!networkStatus.connected || !token?.trim()) return;
@@ -191,34 +206,94 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
             log('executing pending operations');
             const { keys } = await Preferences.keys();
 
-            // replay pending creates
+            // replay pending creates and map tempId -> realId
             for (const key of keys) {
-                if (key.startsWith('sav-')) {
-                    const res = await Preferences.get({ key });
-                    if (typeof res.value === 'string') {
-                        const value = JSON.parse(res.value) as { token: string; item: LocalItem };
-                        const replay = { ...value.item };
-                        (replay as any)._id = undefined; // let server assign id
-                        await addItemCallback(replay);
-                        await Preferences.remove({ key });
-                    }
+                if (!key.startsWith('sav-')) continue;
+                const res = await Preferences.get({ key });
+                if (typeof res.value !== 'string') continue;
+
+                const tempId = key.substring(4); // sav-<tmp-id>
+                const value = JSON.parse(res.value) as { token: string; item: LocalItem };
+                const replay: any = { ...value.item };
+                delete replay._id;
+                delete replay.isNotSaved;
+
+                try {
+                    const created = await createItemAPI(token, replay);
+                    // replace temp in state and store map for later updates
+                    dispatch({ type: REPLACE_TEMP_ITEM, payload: { tempId, item: created } });
+                    await Preferences.set({ key: `map-${tempId}`, value: String((created as any)._id) });
+                    await Preferences.remove({ key });
+                } catch (e) {
+                    log('replay create failed', e);
                 }
             }
 
-            // replay pending updates
+            // replay pending updates (translate tmp ids using the map)
             for (const key of keys) {
-                if (key.startsWith('upd-')) {
-                    const res = await Preferences.get({ key });
-                    if (typeof res.value === 'string') {
-                        const value = JSON.parse(res.value) as { token: string; item: LocalItem };
-                        await updateItemCallback(value.item);
-                        await Preferences.remove({ key });
+                if (!key.startsWith('upd-')) continue;
+                const res = await Preferences.get({ key });
+                if (typeof res.value !== 'string') continue;
+
+                const value = JSON.parse(res.value) as { token: string; item: LocalItem };
+                const toSend: any = { ...value.item };
+                delete toSend.isNotSaved;
+
+                if (typeof toSend._id === 'string' && toSend._id.startsWith('tmp-')) {
+                    const mapped = await Preferences.get({ key: `map-${toSend._id}` });
+                    if (!mapped.value) {
+                        // the create hasn't succeeded yet; skip for now
+                        continue;
                     }
+                    toSend._id = mapped.value;
+                }
+
+                try {
+                    const updated = await updateItemAPI(token, toSend);
+                    dispatch({ type: UPDATE_ITEM_SUCCEEDED, payload: { item: updated } });
+                    await Preferences.remove({ key });
+                } catch (e) {
+                    log('replay update failed', e);
                 }
             }
         }
         run();
     }
+    // function executePendingOperations() {
+    //     async function run() {
+    //         if (!networkStatus.connected || !token?.trim()) return;
+    //
+    //         log('executing pending operations');
+    //         const { keys } = await Preferences.keys();
+    //
+    //         // replay pending creates
+    //         for (const key of keys) {
+    //             if (key.startsWith('sav-')) {
+    //                 const res = await Preferences.get({ key });
+    //                 if (typeof res.value === 'string') {
+    //                     const value = JSON.parse(res.value) as { token: string; item: LocalItem };
+    //                     const replay = { ...value.item };
+    //                     (replay as any)._id = undefined; // let server assign id
+    //                     await addItemCallback(replay);
+    //                     await Preferences.remove({ key });
+    //                 }
+    //             }
+    //         }
+    //
+    //         // replay pending updates
+    //         for (const key of keys) {
+    //             if (key.startsWith('upd-')) {
+    //                 const res = await Preferences.get({ key });
+    //                 if (typeof res.value === 'string') {
+    //                     const value = JSON.parse(res.value) as { token: string; item: LocalItem };
+    //                     await updateItemCallback(value.item);
+    //                     await Preferences.remove({ key });
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     run();
+    // }
 
     function wsEffect() {
         let canceled = false;
