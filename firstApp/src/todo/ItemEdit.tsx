@@ -60,41 +60,6 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
     }, [item, saveItem, name,description,noEmployees,openingDate,isPublic, history]);
 
 
-
-
-    // useEffect(() => {
-  //   log('useEffect');
-  //   const routeId = match.params.id || '';
-  //   const item = items?.find(it => it._id === routeId);
-  //   setItem(item);
-  //   if (item) {
-  //       console.log(item);
-  //       setName(item.name);
-  //       setDescription(item.description);
-  //       if (item.openingDate) {
-  //           const d = item.openingDate instanceof Date ? item.openingDate : new Date(item.openingDate);
-  //           setOpeningDate(isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10));
-  //       } else {
-  //           setOpeningDate('');
-  //       }
-  //       setNoEmployees(item.noEmployees || 0);
-  //       setIsPublic(item.isPublic || false);
-  //   }
-  // }, [match.params.id, items]);
-  //
-  // const handleSave = useCallback(() => {
-  //     const editedItem: ItemProps = {
-  //         ...item,
-  //         name,
-  //         description,
-  //         noEmployees: Number(noEmployees) || 0,
-  //         openingDate: openingDate ? new Date(openingDate) : undefined,
-  //         isPublic
-  //     } as ItemProps;
-  //     saveItem && saveItem(editedItem).then(() => history.goBack());
-  // }, [item, saveItem, name,description,noEmployees,openingDate,isPublic, history]);
-  //
-
   log('render');
   console.log(item);
   return (
@@ -107,7 +72,7 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent>        
+      <IonContent>
         <br/>
         <IonLabel><b>Name</b></IonLabel>
         <IonInput value={name} onIonChange={e => setName(e.detail.value || '')} />

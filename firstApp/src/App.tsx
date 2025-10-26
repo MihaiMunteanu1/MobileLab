@@ -35,6 +35,7 @@ import { ItemList } from './todo';
 import { ItemProvider } from './todo/ItemProvider';
 import ItemEdit from './todo/ItemEdit';
 import { AuthProvider, Login, PrivateRoute } from './auth';
+import ItemList2 from "./todo/ItemList2";
 
 setupIonicReact();
 
@@ -45,7 +46,7 @@ const App: React.FC = () => (
                 <AuthProvider>
                     <Route path="/login" component={Login} exact={true}/>
                     <ItemProvider>
-                        <PrivateRoute path="/items" component={ItemList} exact={true}/>
+                        <PrivateRoute path="/items" component={ItemList2} exact={true}/>
                         <PrivateRoute path="/item" component={ItemEdit} exact={true}/>
                         <PrivateRoute path="/item/:id" component={ItemEdit} exact={true}/>
                     </ItemProvider>
