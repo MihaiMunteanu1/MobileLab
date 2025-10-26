@@ -62,29 +62,29 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState = (state, 
             return { ...state, fetchingError: payload.error, fetching: false };
 
         case UPDATE_ITEM_STARTED:
-            return { ...state, updateError: null, updating: true };
+            return { ...state, savingError: null, saving: true };
         case UPDATE_ITEM_FAILED:
-            return { ...state, updateError: payload.error, updating: false };
+            return { ...state, savingError: payload.error, saving: false };
         case UPDATE_ITEM_SUCCEEDED: {
             const items = [...(state.items || [])];
             const item = payload.item as ItemProps;
             const index = items.findIndex((it) => it._id === item._id);
             if (index === -1) items.splice(0, 0, item);
             else items[index] = item;
-            return { ...state, items, updating: false };
+            return { ...state, items, saving: false };
         }
 
         case CREATE_ITEM_STARTED:
-            return { ...state, updateError: null, updating: true };
+            return { ...state, savingError: null, saving: true };
         case CREATE_ITEM_FAILED:
-            return { ...state, updateError: payload.error, updating: false };
+            return { ...state, savingError: payload.error, saving: false };
         case CREATE_ITEM_SUCCEEDED: {
             const items = [...(state.items || [])];
             const item = payload.item as ItemProps;
             const index = items.findIndex((it) => it._id === item._id);
             if (index === -1) items.splice(0, 0, item);
             else items[index] = item;
-            return { ...state, items, updating: false, updateError: null };
+            return { ...state, items, saving: false, savingError: null };
         }
 
         default:
