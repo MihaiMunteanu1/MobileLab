@@ -8,7 +8,7 @@ import { usePreferences } from './usePreferences';
 const Home: React.FC = () => {
   const { appState } = useAppState();
   const { networkStatus } = useNetwork();
-  usePreferences();
+  //usePreferences();
   return (
       <IonLabel>App state is {JSON.stringify(appState)} <br/> Network status
           is {JSON.stringify(networkStatus)}</IonLabel>

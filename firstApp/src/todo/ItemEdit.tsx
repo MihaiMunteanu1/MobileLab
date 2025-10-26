@@ -48,15 +48,22 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
     }, [match.params.id, items]);
 
     const handleUpdate = useCallback(() => {
-        const editedItem: ItemProps = {
+        // const editedItem: ItemProps = {
+        //     ...itemToUpdate,
+        //     name,
+        //     description,
+        //     noEmployees,
+        //     openingDate,
+        //     isPublic
+        // } as ItemProps;
+        const editedItem = {
             ...itemToUpdate,
             name,
             description,
             noEmployees,
             openingDate,
             isPublic
-        } as ItemProps;
-
+        };
         log('update', editedItem);
         updateItem && updateItem(editedItem).then(() => history.goBack());
     }, [itemToUpdate, name, description, noEmployees, openingDate, isPublic, updateItem, history]);

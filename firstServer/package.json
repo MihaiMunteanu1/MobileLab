@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/preferences": "^7.0.2",
     "@koa/cors": "^3.1.0",
     "jsonwebtoken": "9.0.0",
     "koa": "^2.13.0",
@@ -18,8 +19,6 @@
     "koa-router": "^8.0.8",
     "nedb-promise": "^2.0.1",
     "ws": "7.4.6"
-  },
-  "devDependencies": {
   },
   "engines": {
     "node": ">= 7.6"

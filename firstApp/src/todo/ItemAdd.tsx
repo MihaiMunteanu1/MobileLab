@@ -24,7 +24,7 @@ const log = getLogger('ItemAdd');
 interface ItemAddProps extends RouteComponentProps<{ id?: string }> {}
 
 export const ItemAdd: React.FC<ItemAddProps> = ({ history }) => {
-  const { saving, savingError, addItem } = useContext(ItemContext);
+  const {savingError,saving, addItem } = useContext(ItemContext);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
