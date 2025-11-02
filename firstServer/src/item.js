@@ -20,7 +20,7 @@ export class ItemStore {
         console.log(company);
         if (!company.name) throw new Error("Missing name!");
 
-        if (!company.description) throw new Error("Missing description!");
+        //if (!company.description) throw new Error("Missing description!");
 
         return this.store.insert(company);
     }

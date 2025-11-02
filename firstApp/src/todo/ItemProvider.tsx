@@ -114,7 +114,6 @@ interface ItemProviderProps {
     children: PropTypes.ReactNodeLike;
 }
 
-// tag offline items locally
 type LocalItem = ItemProps & { isNotSaved?: boolean };
 
 export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
@@ -242,7 +241,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
                 if (typeof toSend._id === 'string' && toSend._id.startsWith('tmp-')) {
                     const mapped = await Preferences.get({ key: `map-${toSend._id}` });
                     if (!mapped.value) {
-                        // the create hasn't succeeded yet; skip for now
                         continue;
                     }
                     toSend._id = mapped.value;
@@ -259,41 +257,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
         }
         run();
     }
-    // function executePendingOperations() {
-    //     async function run() {
-    //         if (!networkStatus.connected || !token?.trim()) return;
-    //
-    //         log('executing pending operations');
-    //         const { keys } = await Preferences.keys();
-    //
-    //         // replay pending creates
-    //         for (const key of keys) {
-    //             if (key.startsWith('sav-')) {
-    //                 const res = await Preferences.get({ key });
-    //                 if (typeof res.value === 'string') {
-    //                     const value = JSON.parse(res.value) as { token: string; item: LocalItem };
-    //                     const replay = { ...value.item };
-    //                     (replay as any)._id = undefined; // let server assign id
-    //                     await addItemCallback(replay);
-    //                     await Preferences.remove({ key });
-    //                 }
-    //             }
-    //         }
-    //
-    //         // replay pending updates
-    //         for (const key of keys) {
-    //             if (key.startsWith('upd-')) {
-    //                 const res = await Preferences.get({ key });
-    //                 if (typeof res.value === 'string') {
-    //                     const value = JSON.parse(res.value) as { token: string; item: LocalItem };
-    //                     await updateItemCallback(value.item);
-    //                     await Preferences.remove({ key });
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     run();
-    // }
 
     function wsEffect() {
         let canceled = false;
