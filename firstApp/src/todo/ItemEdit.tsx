@@ -1,5 +1,6 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useRef, useState} from 'react';
 import {
+    createAnimation,
     IonActionSheet,
     IonBackButton,
     IonButton,
@@ -23,6 +24,7 @@ import {Photo, usePhotoGallery} from "../pages/usePhotoGallery";
 import {camera, trash} from "ionicons/icons";
 import MyMap from "../pages/MyMap";
 import { useMyLocation } from "../pages/useMyLocation";
+import {MyModal} from "../pages/MyModal";
 
 const log = getLogger('ItemEdit');
 
@@ -58,6 +60,48 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             setCurrentLongitude(position.coords.longitude);
         }
     }, [position, currentLatitude, currentLongitude]);
+
+    const label1Ref = useRef<HTMLIonLabelElement>(null);
+    const label2Ref = useRef<HTMLIonLabelElement>(null);
+    const label3Ref = useRef<HTMLIonLabelElement>(null);
+    const label4Ref = useRef<HTMLIonLabelElement>(null);
+    const label5Ref = useRef<HTMLIonLabelElement>(null);
+
+    const createChainAnimation = useCallback(() => {
+        setTimeout(() => {
+            const labels = [label1Ref, label2Ref, label3Ref, label4Ref, label5Ref];
+            const animations = labels
+                .map((labelRef, index) => {
+                    if (labelRef.current) {
+                        return createAnimation()
+                            .addElement(labelRef.current)
+                            .duration(2000)
+                            .iterations(Infinity)
+                            .keyframes([
+                                { offset: 0,marginLeft:"0px", transform: 'scale(3)', opacity: '1' },
+                                { offset: 0.5,marginLeft:"20px", transform: 'scale(1.5)', opacity: '1' },
+                                {
+                                    offset: 1,marginLeft:"0px", transform: 'scale(0.5)', opacity: '0.2'
+                                }
+                            ])
+                            .delay(index * 400);
+                    }
+                    return null;
+                })
+                .filter((animation): animation is ReturnType<typeof createAnimation> => animation !== null);
+
+            if (animations.length > 0) {
+                const parentAnimation = createAnimation()
+                    .addAnimation(animations);
+
+                parentAnimation.play();
+            }
+        }, 100);
+    }, []);
+
+    useEffect(() => {
+        createChainAnimation();
+    }, [createChainAnimation, items]);
 
     useEffect(() => {
         const routeId = match.params.id || '';
@@ -136,15 +180,15 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
 
             <IonContent>
                 <br />
-                <IonLabel><b>Name</b></IonLabel>
+                <IonLabel ref={label1Ref}><b>Name</b></IonLabel>
                 <IonInput value={name} onIonChange={e => setName(e.detail.value || '')} />
 
                 <br />
-                <IonLabel><b>Description</b></IonLabel>
+                <IonLabel ref={label2Ref}><b>Description</b></IonLabel>
                 <IonInput value={description} onIonChange={e => setDescription(e.detail.value || '')} />
 
                 <br />
-                <IonLabel><b>Number of Employees</b></IonLabel>
+                <IonLabel ref={label3Ref}><b>Number of Employees</b></IonLabel>
                 <IonInput
                     type="number"
                     value={noEmployees}
@@ -152,7 +196,7 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
                 />
 
                 <br />
-                <IonLabel><b>Opening Date</b></IonLabel>
+                <IonLabel ref={label4Ref}><b>Opening Date</b></IonLabel>
                 <IonDatetime
                     presentation="date"
                     value={new Date(openingDate).toISOString()}
@@ -162,7 +206,7 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
                 />
 
                 <br />
-                <IonLabel><b>Is Public</b></IonLabel>
+                <IonLabel  ref={label5Ref}><b>Is Public</b></IonLabel>
                 <IonCheckbox checked={isPublic} onIonChange={e => setIsPublic(e.detail.checked)} />
 
                 <br/>
@@ -203,7 +247,14 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
                 <br/>
                 <br/>
 
+                <MyModal/>
 
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
                 <br/>
                 {showStoredPictures &&
                     <div>
