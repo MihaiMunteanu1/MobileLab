@@ -6,4 +6,6 @@ export interface ItemProps {
   openingDate: Date;
   isPublic: boolean;
   webViewPath?: string;
+  latitude?:number;
+  longitude?:number;
 }

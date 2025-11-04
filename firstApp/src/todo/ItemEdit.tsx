@@ -21,6 +21,8 @@ import { ItemContext } from './ItemProvider';
 import { ItemProps } from './ItemProps';
 import {Photo, usePhotoGallery} from "../pages/usePhotoGallery";
 import {camera, trash} from "ionicons/icons";
+import MyMap from "../pages/MyMap";
+import { useMyLocation } from "../pages/useMyLocation";
 
 const log = getLogger('ItemEdit');
 
@@ -44,6 +46,18 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
 
     const photoStyle = { width: '30%', margin: "0 0 0 35%" };
 
+    const [currentLatitude, setCurrentLatitude] = useState<number | undefined>(undefined);
+    const [currentLongitude, setCurrentLongitude] = useState<number | undefined>(undefined);
+
+    const { position, error } = useMyLocation();
+
+    useEffect(() => {
+        // Set current location if item doesn't have coordinates set
+        if (position && currentLatitude === undefined && currentLongitude === undefined) {
+            setCurrentLatitude(position.coords.latitude);
+            setCurrentLongitude(position.coords.longitude);
+        }
+    }, [position, currentLatitude, currentLongitude]);
 
     useEffect(() => {
         const routeId = match.params.id || '';
@@ -57,7 +71,8 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             setNoEmployees(found.noEmployees || 0);
             setIsPublic(found.isPublic || false);
             setWebViewPath(found.webViewPath || "");
-
+            setCurrentLatitude(found.latitude);
+            setCurrentLongitude(found.longitude);
         }
     }, [match.params.id, items]);
 
@@ -77,11 +92,12 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             noEmployees,
             openingDate,
             isPublic,
-            webViewPath
+            webViewPath,
+            latitude:currentLatitude, longitude:currentLongitude
         };
         log('update', editedItem);
         updateItem && updateItem(editedItem).then(() => history.goBack());
-    }, [itemToUpdate, name, description, noEmployees, openingDate, isPublic,webViewPath, updateItem, history]);
+    }, [itemToUpdate, name, description, noEmployees, openingDate, isPublic,webViewPath,currentLatitude,currentLongitude, updateItem, history]);
 
     log('render ItemEdit');
 
@@ -93,6 +109,16 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             setWebViewPath(image);
         }
     }
+
+    const handleMapClick = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
+        setCurrentLatitude(latitude);
+        setCurrentLongitude(longitude);
+    };
+
+    // callback pentru click pe marker (poți face ce vrei aici)
+    const handleMarkerClick = ({ markerId, latitude, longitude }: { markerId: string; latitude: number; longitude: number }) => {
+        console.log("Marker clicked:", markerId, latitude, longitude);
+    };
 
     return (
         <IonPage>
@@ -153,6 +179,32 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
                 {savingError && <div>{savingError.message || 'Failed to save item'}</div>}
 
 
+                <div>
+                    {currentLatitude !== undefined && currentLongitude !== undefined && (
+                        <MyMap
+                            lat={currentLatitude}
+                            lng={currentLongitude}
+                            onMapClick={({ latitude, longitude }) => {
+                                setCurrentLatitude(latitude);
+                                setCurrentLongitude(longitude);
+                            }}
+                            onMarkerClick={({ markerId, latitude, longitude }) => {
+                                console.log("Marker clicked:", markerId, latitude, longitude);
+                            }}
+                        />
+                    )}
+                </div>
+
+
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+
+
+                <br/>
                 {showStoredPictures &&
                     <div>
                         <IonGrid>
