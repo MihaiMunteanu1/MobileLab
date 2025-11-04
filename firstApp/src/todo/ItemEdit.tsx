@@ -1,16 +1,17 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
+    IonActionSheet,
     IonBackButton,
     IonButton,
     IonButtons,
-    IonCheckbox,
+    IonCheckbox, IonCol,
     IonContent,
-    IonDatetime,
-    IonHeader,
+    IonDatetime, IonFab, IonFabButton, IonGrid,
+    IonHeader, IonIcon, IonImg,
     IonInput,
     IonLabel,
     IonLoading,
-    IonPage,
+    IonPage, IonRow,
     IonTitle,
     IonToolbar
 } from '@ionic/react';
@@ -18,6 +19,8 @@ import { RouteComponentProps } from 'react-router';
 import { getLogger } from '../core';
 import { ItemContext } from './ItemProvider';
 import { ItemProps } from './ItemProps';
+import {Photo, usePhotoGallery} from "../pages/usePhotoGallery";
+import {camera, trash} from "ionicons/icons";
 
 const log = getLogger('ItemEdit');
 
@@ -33,6 +36,15 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
     const [isPublic, setIsPublic] = useState(false);
     const [itemToUpdate, setItemToUpdate] = useState<ItemProps>();
 
+    const {photos, takePhoto, deletePhoto} = usePhotoGallery();
+
+    const [showStoredPictures, setShowStoredPictures] = useState<boolean>(false);
+    const [webViewPath, setWebViewPath] = useState('');
+    const [photoToDelete, setPhotoToDelete] = useState<Photo>();
+
+    const photoStyle = { width: '30%', margin: "0 0 0 35%" };
+
+
     useEffect(() => {
         const routeId = match.params.id || '';
         log('ItemEdit useEffect', routeId);
@@ -44,6 +56,8 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             setOpeningDate(found.openingDate);
             setNoEmployees(found.noEmployees || 0);
             setIsPublic(found.isPublic || false);
+            setWebViewPath(found.webViewPath || "");
+
         }
     }, [match.params.id, items]);
 
@@ -62,13 +76,24 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
             description,
             noEmployees,
             openingDate,
-            isPublic
+            isPublic,
+            webViewPath
         };
         log('update', editedItem);
         updateItem && updateItem(editedItem).then(() => history.goBack());
-    }, [itemToUpdate, name, description, noEmployees, openingDate, isPublic, updateItem, history]);
+    }, [itemToUpdate, name, description, noEmployees, openingDate, isPublic,webViewPath, updateItem, history]);
 
     log('render ItemEdit');
+
+    async function handlePhotoChange() {
+        const image = await takePhoto();
+        if (!image) {
+            setWebViewPath('');
+        } else {
+            setWebViewPath(image);
+        }
+    }
+
     return (
         <IonPage>
             <IonHeader>
@@ -114,8 +139,61 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
                 <IonLabel><b>Is Public</b></IonLabel>
                 <IonCheckbox checked={isPublic} onIonChange={e => setIsPublic(e.detail.checked)} />
 
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+
+
+                <br/>
+
                 <IonLoading isOpen={saving} />
                 {savingError && <div>{savingError.message || 'Failed to save item'}</div>}
+
+
+                {showStoredPictures &&
+                    <div>
+                        <IonGrid>
+                            <IonRow>
+                                {photos.map((photo, index) => (
+                                    <IonCol size="6" key={index}>
+                                        <IonImg onClick={() => setPhotoToDelete(photo)}
+                                                src={photo.webviewPath}/>
+                                    </IonCol>
+                                ))}
+                            </IonRow>
+                        </IonGrid>
+                        <IonActionSheet
+                            isOpen={!!photoToDelete}
+                            buttons={[{
+                                text: 'Delete',
+                                role: 'destructive',
+                                icon: trash,
+                                handler: () => {
+                                    if (photoToDelete) {
+                                        deletePhoto(photoToDelete);
+                                        setPhotoToDelete(undefined);
+                                    }
+                                }
+                            }, {
+                                text: 'Cancel',
+                                icon: 'close',
+                                role: 'cancel'
+                            }]}
+                            onDidDismiss={() => setPhotoToDelete(undefined)}
+                        />
+                    </div>}
+
+                {webViewPath && (<img style={photoStyle} onClick={handlePhotoChange} src={webViewPath} width={'250px'} height={'250px'}/>)}
+                {!webViewPath && (
+                    <IonFab vertical="bottom" horizontal="center" slot="fixed">
+                        <IonFabButton onClick={handlePhotoChange}>
+                            <IonIcon icon={camera}/>
+                        </IonFabButton>
+                    </IonFab>)}
+
             </IonContent>
         </IonPage>
     );

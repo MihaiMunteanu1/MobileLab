@@ -5,4 +5,5 @@ export interface ItemProps {
   noEmployees: number;
   openingDate: Date;
   isPublic: boolean;
+  webViewPath?: string;
 }

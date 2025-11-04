@@ -205,7 +205,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
             log('executing pending operations');
             const { keys } = await Preferences.keys();
 
-            // replay pending creates and map tempId -> realId
             for (const key of keys) {
                 if (!key.startsWith('sav-')) continue;
                 const res = await Preferences.get({ key });
@@ -228,7 +227,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
                 }
             }
 
-            // replay pending updates (translate tmp ids using the map)
             for (const key of keys) {
                 if (!key.startsWith('upd-')) continue;
                 const res = await Preferences.get({ key });

@@ -1,5 +1,5 @@
 import React, { memo, version } from 'react';
-import { IonItem, IonLabel, IonNote } from '@ionic/react';
+import { IonItem, IonLabel, IonNote, IonImg } from '@ionic/react';
 import { getLogger } from '../core';
 import { ItemProps } from './ItemProps';
 
@@ -21,16 +21,24 @@ const formatBool = (b?: boolean | null) => {
     return b ? 'Yes' : 'No';
 };
 
-const Item: React.FC<ItemPropsExt> = ({ _id, name,description,noEmployees,openingDate,isPublic, onEdit }) => {
+const Item: React.FC<ItemPropsExt> = ({ _id, name,description,noEmployees,openingDate,isPublic,webViewPath, onEdit }) => {
   return (
-    <IonItem onClick={() => onEdit(_id)}>
-        <IonLabel>{name}</IonLabel>
-        <IonLabel>{description}</IonLabel>
-        <IonLabel>{noEmployees}</IonLabel>
-        <IonLabel>{formatDate(openingDate)}</IonLabel>
-        <IonLabel>{formatBool(isPublic)}</IonLabel>
-
-    </IonItem>
+      <IonItem onClick={() => onEdit(_id)} style={{marginRight: '100px', paddingRight: '15px'}}>
+          <IonLabel style={{whiteSpace: 'normal', overflow: 'visible', marginRight: '120px'}}>{name}</IonLabel>
+          <IonLabel style={{whiteSpace: 'normal', overflow: 'visible', marginRight: '120px'}}>{description}</IonLabel>
+          <IonLabel style={{whiteSpace: 'normal', overflow: 'visible', marginRight: '120px'}}>{noEmployees}</IonLabel>
+          <IonLabel style={{whiteSpace: 'normal', overflow: 'visible', marginRight: '120px'}}>{formatDate(openingDate)}</IonLabel>
+          <IonLabel style={{whiteSpace: 'normal', overflow: 'visible', marginRight: '120px'}}>{formatBool(isPublic)}</IonLabel>
+          {webViewPath && <IonImg src={webViewPath} alt={name} style={{width: '250px', height: '250px'}} />}
+      </IonItem>
+    // <IonItem onClick={() => onEdit(_id)} >
+    //     <IonLabel style={{marginRight: '100px'}}>{name}</IonLabel>
+    //     <IonLabel style={{marginRight: '100px'}}>{description}</IonLabel>
+    //     <IonLabel style={{marginRight: '100px'}}>{noEmployees}</IonLabel>
+    //     <IonLabel style={{marginRight: '100px'}}>{formatDate(openingDate)}</IonLabel>
+    //     <IonLabel style={{marginRight: '100px'}}>{formatBool(isPublic)}</IonLabel>
+    //     {webViewPath && <IonImg src={webViewPath} alt={name} style={{width: '250px', height: '250px'}} />}
+    // </IonItem>
   );
 };
 

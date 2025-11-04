@@ -39,6 +39,7 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
     const [searchText, setSearchText] = useState('');
     const [filter, setFilter] = useState<string | undefined>(undefined);
 
+
     useEffect(() => {
         setIsOpen(!!fetching);
     }, [fetching]);
@@ -133,8 +134,9 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
                 <IonLoading isOpen={isOpen} message="Fetching items" />
                 {itemsAux && (
                     <IonList>
-                        {itemsAux.map(({ _id, name, description, noEmployees, openingDate, isPublic }) => (
-                            <div key={_id} style={{height: '190px'}}>
+                        {itemsAux.map(({ _id, name, description, noEmployees, openingDate, isPublic,webViewPath }) => (
+                            <div key={_id} style={{height: '260px', borderBottom: '1px solid black ', display:'flex',
+                            alignItems:'center'}}>
                                 <Item
                                     _id={_id}
                                     name={name}
@@ -142,7 +144,9 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
                                     noEmployees={noEmployees}
                                     openingDate={openingDate}
                                     isPublic={isPublic}
+                                    webViewPath={webViewPath}
                                     onEdit={id => history.push(`/item/${id}`)}
+
                                 />
                             </div>
                         ))}
